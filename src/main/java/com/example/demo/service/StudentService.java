@@ -40,8 +40,14 @@ public class StudentService {
 
         // 3. Save student_skill
         for (String skillName : request.getSkills()) {
-            Skill skill = skillLookupRepo.findBySkillName(skillName)
-                    .orElseThrow(() -> new RuntimeException("Skill not found: " + skillName));
+
+            String normalizedSkill = skillName
+                    .trim()
+                    .toLowerCase()
+                    .replaceAll("\\s+", " ");
+
+            Skill skill = skillLookupRepo.findBySkillName(normalizedSkill)
+                    .orElseThrow(() -> new RuntimeException("Skill not found: " + normalizedSkill));
 
             StudentSkill s = new StudentSkill();
             s.setStudentId(studentId);
