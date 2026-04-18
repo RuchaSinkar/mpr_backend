@@ -27,5 +27,6 @@ public class DashboardResponse {
         private Double experienceMatchPercent;
         private Double projectMatchPercent;
         private Double totalMatchPercent;
+        private List<String> requiredSkills;//Added update
     }
 }

@@ -33,4 +33,14 @@ public interface MatchResultRepository extends JpaRepository<MatchResult, Intege
         ORDER BY mr.total_match_percent DESC
    \s""", nativeQuery = true)
     List<Object[]> findMatchesByStudentId(@Param("studentId") Integer studentId);
+
+
+    //added @Query
+    @Query(value = """
+    SELECT jrs.job_id, s.skill_name
+    FROM job_required_skill jrs
+    JOIN skill s ON jrs.skill_id = s.skill_id
+    WHERE jrs.job_id IN (:jobIds)
+""", nativeQuery = true)
+    List<Object[]> findSkillsByJobIds(@Param("jobIds") List<Integer> jobIds);//till this
 }

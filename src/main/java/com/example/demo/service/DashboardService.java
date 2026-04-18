@@ -8,9 +8,8 @@ import com.example.demo.repository.StudentProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +49,29 @@ public class DashboardService {
             c.setTotalMatchPercent(row[13] != null ? ((Number) row[13]).doubleValue() : 0.0);
             companies.add(c);
         }
+
+        // Fetch required skills for all jobs in one query -> ADDED
+        if (!companies.isEmpty()) {
+            List<Integer> jobIds = companies.stream()
+                    .map(CompanyMatch::getJobId)
+                    .collect(Collectors.toList());
+
+            List<Object[]> skillRows = matchResultRepo.findSkillsByJobIds(jobIds);
+
+            // Map jobId → list of skill names
+            Map<Integer, List<String>> skillMap = new HashMap<>();
+            for (Object[] sr : skillRows) {
+                Integer jobId = ((Number) sr[0]).intValue();
+                String skillName = (String) sr[1];
+                skillMap.computeIfAbsent(jobId, k -> new ArrayList<>()).add(skillName);
+            }
+
+            // Attach skills to each company
+            for (CompanyMatch c : companies) {
+                c.setRequiredSkills(skillMap.getOrDefault(c.getJobId(), new ArrayList<>()));
+            }
+        }//TILL THIS
+
 
         // 3. Compute overall average match
         double overallMatch = companies.stream()
